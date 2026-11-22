@@ -114,47 +114,31 @@
 </head>
 <body class="min-h-screen flex flex-col pb-20 md:pb-8">
 
-    <!-- ==================== HEADER / BARRE SUPÉRIEURE ==================== -->
-<div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-0 sm:h-16 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
-    <!-- Logo à gauche -->
-    <div class="flex items-center gap-2 shrink-0">
-        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm">
-            <i data-lucide="wallet" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-        </div>
-        <div>
-            <h1 class="font-bold text-base sm:text-lg tracking-tight text-slate-900 leading-none">MonBudget</h1>
-            <span class="text-[11px] font-medium text-slate-400 hidden sm:inline">Maîtrise &amp; Clarté</span>
-        </div>
-    </div>
 
-    <!-- Bloc Mois + Export : toujours en dessous sur mobile, à droite sur PC -->
-    <div class="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-        <!-- Sélecteur de Mois Central -->
-        <div class="flex items-center bg-slate-100 rounded-xl p-0.5 sm:p-1 border border-slate-200 shrink-0">
-            <button id="prevMonthBtn" type="button" title="Mois précédent" class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-xs transition">
-                <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </button>
-            <div class="px-2 sm:px-4 text-center min-w-[118px] sm:min-w-[165px]">
-                <span id="currentMonthLabel" class="text-xs sm:text-sm font-semibold text-slate-800 capitalize whitespace-nowrap">Septembre 2026</span>
+<!-- ==================== HEADER / BARRE SUPÉRIEURE ==================== -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-0 sm:h-16 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+            <!-- Logo à gauche -->
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm">
+                    <i data-lucide="wallet" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base sm:text-lg tracking-tight text-slate-900 leading-none">MonBudget</h1>
+                    <span class="text-[11px] font-medium text-slate-400 hidden sm:inline">Maîtrise &amp; Clarté</span>
+                </div>
             </div>
-            <button id="nextMonthBtn" type="button" title="Mois suivant" class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-xs transition">
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-        </div>
-
-    </div>
-</div>
 
             <!-- Navigation Desktop + Bouton Paramètres/Données -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
                 <nav class="hidden md:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
                     <button data-tab="dashboard" class="nav-btn active px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 bg-white text-brand-600 shadow-xs">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                        <span>Synthèse & Dépenses</span>
+                        <span>Synthèse &amp; Dépenses</span>
                     </button>
                     <button data-tab="fixed" class="nav-btn px-3.5 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
                         <i data-lucide="repeat" class="w-4 h-4"></i>
-                        <span>Fixes & Revenus</span>
+                        <span>Fixes &amp; Revenus</span>
                     </button>
                     <button data-tab="analytics" class="nav-btn px-3.5 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
                         <i data-lucide="pie-chart" class="w-4 h-4"></i>
@@ -165,6 +149,21 @@
                 <button id="openSettingsBtn" type="button" title="Données, Export & Paramètres" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition border border-slate-200">
                     <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
                 </button>
+            </div>
+
+            <!-- Sélecteur de Mois : toujours en dessous sur mobile, aligné proprement sur PC -->
+            <div class="w-full sm:w-auto flex items-center justify-center sm:justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                <div class="flex items-center bg-slate-100 rounded-xl p-0.5 sm:p-1 border border-slate-200 shrink-0">
+                    <button id="prevMonthBtn" type="button" title="Mois précédent" class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-xs transition">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                    <div class="px-2 sm:px-4 text-center min-w-[118px] sm:min-w-[165px]">
+                        <span id="currentMonthLabel" class="text-xs sm:text-sm font-semibold text-slate-800 capitalize whitespace-nowrap">Septembre 2026</span>
+                    </div>
+                    <button id="nextMonthBtn" type="button" title="Mois suivant" class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-xs transition">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -747,14 +746,17 @@
             saveState();
         }
 
-        function saveState() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
-            } catch (e) {
-                console.error("Erreur sauvegarde localStorage:", e);
-                showToast("Erreur lors de la sauvegarde locale", true);
-            }
-        }
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+    if (typeof saveBudgetToSupabase === 'function') {
+      saveBudgetToSupabase();
+    }
+  } catch (e) {
+    console.error("Erreur sauvegarde localStorage:", e);
+    showToast("Erreur lors de la sauvegarde locale", true);
+  }
+}
 
         // --- 3. UTILITAIRES DE FORMATAGE ---
         const currencyFormatter = new Intl.NumberFormat('fr-FR', {
@@ -1655,7 +1657,7 @@
       }
     </script>
 
-    <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4 hidden">
+  <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4 hidden">
       <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-4">
         <h2 class="text-lg font-bold text-slate-900">Connexion cloud MonBudget</h2>
         <p class="text-xs text-slate-500">Connectez-vous pour synchroniser vos données en ligne.</p>
@@ -1685,28 +1687,44 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       // 1. Initialisation Supabase (remplacez par vos vraies valeurs)
-      const SUPABASE_URL = 'https://VOTRE-PROJET.supabase.co';
-      const SUPABASE_ANON_KEY = 'sb_publishable_VOTRE_CLE_PUBLIQUE';
+      const SUPABASE_URL = 'https://https://xksojyshkayfpvfvikgt.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_fOeq396vP4sA8o819Cmk5g_g9d7XCsy';
       const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       // 2. Vos variables et fonctions existantes de l'application
-      function recupererEtatBudget() {
-        // À relier à votre objet / variables de données
-        return {};
-      }
+function recupererEtatBudget() {
+  return state && state.data ? state.data : {};
+}
 
-      function appliquerEtatBudget(state) {
-        // À relier à votre chargement de données + fonction d'affichage
-      }
+function appliquerEtatBudget(cloudData) {
+  if (!cloudData || typeof cloudData !== 'object') return;
+  state.data = {
+    categories: Array.isArray(cloudData.categories) && cloudData.categories.length > 0
+      ? cloudData.categories
+      : [...DEFAULT_CATEGORIES],
+    incomes: Array.isArray(cloudData.incomes) ? cloudData.incomes : [],
+    fixedExpenses: Array.isArray(cloudData.fixedExpenses) ? cloudData.fixedExpenses : [],
+    expenses: Array.isArray(cloudData.expenses) ? cloudData.expenses : []
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+  } catch (e) {
+    console.error('Erreur cache local:', e);
+  }
+  renderAll();
+}
 
       // 3. Gestion de la session, chargement (select) et sauvegarde (upsert)
       let currentUser = null;
       let saveTimeout = null;
 
-      function setAuthModalVisible(visible) {
-        const modal = document.getElementById('authModal');
-        if (modal) modal.classList.toggle('hidden', !visible);
-      }
+    function setAuthModalVisible(visible) {
+  const modal = document.getElementById('authModal');
+  if (!modal) return;
+  modal.classList.toggle('hidden', !visible);
+  modal.classList.toggle('flex', visible);
+}
+      
 
       function showAuthError(message) {
         const errEl = document.getElementById('authError');
