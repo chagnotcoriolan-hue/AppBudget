@@ -880,17 +880,19 @@ function getMonthlyMetrics(year, month) {
     };
 }
         // --- 5. RENDU DE L'INTERFACE ---
-        function renderAll() {
-            updateMonthHeader();
-            renderKPIs();
-            renderCategoryPills();
-            renderExpensesList();
-            renderRecurringLists();
-            if (state.activeTab === 'analytics') {
-                renderCharts();
-            }
-            lucide.createIcons();
-        }
+function renderAll() {
+    updateMonthHeader();
+    renderKPIs();
+    renderCategoryPills();
+    renderExpensesList();
+    renderRecurringLists();
+    if (state.activeTab === 'analytics') {
+        renderCharts();
+    }
+    document.getElementById('sharedKpiWrapper')?.classList.toggle('hidden', state.activeTab !== 'dashboard');
+    document.getElementById('quickExpenseSection')?.classList.toggle('hidden', state.activeTab !== 'dashboard');
+    lucide.createIcons();
+}
 
         function updateMonthHeader() {
             const date = new Date(state.selectedYear, state.selectedMonth, 1);
@@ -1608,14 +1610,20 @@ function renderRecurringLists() {
                             : 'nav-btn flex-1 flex flex-col items-center justify-center py-1 text-slate-500 font-medium';
                     }
                 });
+// Affichage contenu
+document.querySelectorAll('.tab-content').forEach(sec => sec.classList.add('hidden'));
+document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
 
-                // Affichage contenu
-                document.querySelectorAll('.tab-content').forEach(sec => sec.classList.add('hidden'));
-                document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
+// Disponible restant + KPI uniquement dans l'onglet Dépenses
+document.getElementById('sharedKpiWrapper')?.classList.toggle('hidden', targetTab !== 'dashboard');
 
-                if (targetTab === 'analytics') {
-                    renderCharts();
-                }
+// Ajout rapide uniquement dans l'onglet Dépenses
+document.getElementById('quickExpenseSection')?.classList.toggle('hidden', targetTab !== 'dashboard');
+
+if (targetTab === 'analytics') {
+    renderCharts();
+}
+lucide.createIcons();
             });
         });
 
