@@ -1645,14 +1645,157 @@
         });
     </script>
 	
-		<script>
-	  if ('serviceWorker' in navigator) {
-		window.addEventListener('load', () => {
-		  navigator.serviceWorker.register('/sw.js')
-			.then((reg) => console.log('Service Worker enregistré :', reg.scope))
-			.catch((err) => console.error('Erreur Service Worker :', err));
-		});
-		}
-		</script>
-</body>
+<script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('Service Worker enregistré :', reg.scope))
+            .catch((err) => console.error('Erreur Service Worker :', err));
+        });
+      }
+    </script>
+
+    <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-4">
+        <h2 class="text-lg font-bold text-slate-900">Connexion cloud MonBudget</h2>
+        <p class="text-xs text-slate-500">Connectez-vous pour synchroniser vos données en ligne.</p>
+
+        <div class="space-y-2.5">
+          <input id="authEmail" type="email" placeholder="votre@email.fr"
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+          <input id="authPassword" type="password" placeholder="Mot de passe"
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+
+        <p id="authError" class="text-xs text-red-600 hidden"></p>
+
+        <div class="flex gap-2 pt-1">
+          <button id="loginBtn" type="button"
+            class="flex-1 py-2 px-3 text-sm font-semibold rounded-xl bg-brand-600 text-white hover:bg-brand-700">
+            Se connecter
+          </button>
+          <button id="signupBtn" type="button"
+            class="py-2 px-3 text-sm font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+            Créer un compte
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      // 1. Initialisation Supabase (remplacez par vos vraies valeurs)
+      const SUPABASE_URL = 'https://VOTRE-PROJET.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_VOTRE_CLE_PUBLIQUE';
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // 2. Vos variables et fonctions existantes de l'application
+      function recupererEtatBudget() {
+        // À relier à votre objet / variables de données
+        return {};
+      }
+
+      function appliquerEtatBudget(state) {
+        // À relier à votre chargement de données + fonction d'affichage
+      }
+
+      // 3. Gestion de la session, chargement (select) et sauvegarde (upsert)
+      let currentUser = null;
+      let saveTimeout = null;
+
+      function setAuthModalVisible(visible) {
+        const modal = document.getElementById('authModal');
+        if (modal) modal.classList.toggle('hidden', !visible);
+      }
+
+      function showAuthError(message) {
+        const errEl = document.getElementById('authError');
+        if (!errEl) return;
+        errEl.textContent = message;
+        errEl.classList.toggle('hidden', !message);
+      }
+
+      async function loadBudgetFromSupabase(user) {
+        const { data, error } = await sb
+          .from('budget_data')
+          .select('state, updated_at')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Erreur chargement Supabase :', error.message);
+          return;
+        }
+
+        if (data && data.state && Object.keys(data.state).length > 0) {
+          appliquerEtatBudget(data.state);
+        } else {
+          await saveBudgetToSupabase(true);
+        }
+      }
+
+      async function saveBudgetToSupabase(immediate = false) {
+        if (!currentUser) return;
+
+        const executeSave = async () => {
+          const stateToSave = recupererEtatBudget();
+          localStorage.setItem('monbudget_cache', JSON.stringify(stateToSave));
+
+          const { error } = await sb
+            .from('budget_data')
+            .upsert(
+              {
+                user_id: currentUser.id,
+                state: stateToSave,
+                updated_at: new Date().toISOString()
+              },
+              { onConflict: 'user_id' }
+            );
+
+          if (error) {
+            console.error('Erreur sauvegarde Supabase :', error.message);
+          }
+        };
+
+        if (immediate) {
+          await executeSave();
+          return;
+        }
+
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(executeSave, 400);
+      }
+
+      // 4. Écouteurs des boutons login / signup et changement de session
+      document.getElementById('loginBtn')?.addEventListener('click', async () => {
+        showAuthError('');
+        const email = document.getElementById('authEmail').value.trim();
+        const password = document.getElementById('authPassword').value;
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) showAuthError(error.message);
+      });
+
+      document.getElementById('signupBtn')?.addEventListener('click', async () => {
+        showAuthError('');
+        const email = document.getElementById('authEmail').value.trim();
+        const password = document.getElementById('authPassword').value;
+        const { error } = await sb.auth.signUp({ email, password });
+        if (error) {
+          showAuthError(error.message);
+        } else {
+          showAuthError('Compte créé. Vous pouvez maintenant vous connecter.');
+        }
+      });
+
+      sb.auth.onAuthStateChange(async (_event, session) => {
+        currentUser = session?.user ?? null;
+        if (currentUser) {
+          setAuthModalVisible(false);
+          await loadBudgetFromSupabase(currentUser);
+        } else {
+          setAuthModalVisible(true);
+        }
+      });
+    </script>
+  </body>
 </html>
