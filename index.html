@@ -66,6 +66,34 @@
             -moz-appearance: textfield;
         }
     </style>
+
+	<style>
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  *, *::before, *::after {
+    box-sizing: inherit;
+  }
+
+  /* Empêche les graphiques Chart.js, images ou tableaux de dépasser l'écran */
+  canvas, img, table {
+    max-width: 100% !important;
+  }
+
+  /* Sur mobile : réduit légèrement les grands titres/chiffres et passe les grilles en 1 colonne */
+  @media (max-width: 640px) {
+    body {
+      font-size: 14px;
+    }
+
+    .grid, [class*="grid-cols"] {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+  }
+</style>
 </head>
 <body class="min-h-screen flex flex-col pb-20 md:pb-8">
 
