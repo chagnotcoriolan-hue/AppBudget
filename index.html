@@ -996,7 +996,7 @@ function saveState() {
             }).join('');
         }
 
-        function renderRecurringLists() {
+function renderRecurringLists() {
             // Revenus
             const incContainer = document.getElementById('incomesList');
             const totalInc = state.data.incomes.filter(i => i.active).reduce((s, i) => s + Number(i.amount), 0);
@@ -1006,23 +1006,23 @@ function saveState() {
                 incContainer.innerHTML = `<div class="p-8 text-center text-xs text-slate-400">Aucun revenu enregistré.</div>`;
             } else {
                 incContainer.innerHTML = state.data.incomes.map(item => `
-                    <div class="p-4 flex items-center justify-between gap-3 ${item.active ? '' : 'opacity-50 bg-slate-50'}">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleRecurring('income', '${item.id}')" 
-                                class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer">
-                            <div class="min-w-0">
-                                <p class="text-sm font-semibold text-slate-900 truncate">${escapeHTML(item.label)}</p>
-                                <p class="text-xs text-slate-500">Versé le ${item.day} du mois</p>
+                    <div class="p-4 flex items-start gap-3 ${item.active ? '' : 'opacity-50 bg-slate-50'}">
+                        <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleRecurring('income', '${item.id}')" 
+                            class="mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0">
+                        <div class="flex-1 min-w-0 space-y-1.5">
+                            <p class="text-sm font-semibold text-slate-900 leading-snug break-words">${escapeHTML(item.label)}</p>
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs text-slate-500">Versé le ${item.day} du mois</span>
+                                <div class="flex items-center gap-2 shrink-0 ml-auto">
+                                    <span class="text-sm font-bold text-emerald-600 tabular-nums">+${formatEuro(item.amount)}</span>
+                                    <button type="button" onclick="openRecurringModal('income', '${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100">
+                                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button type="button" onclick="deleteRecurring('income', '${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-sm font-bold text-emerald-600">+${formatEuro(item.amount)}</span>
-                            <button type="button" onclick="openRecurringModal('income', '${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100">
-                                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <button type="button" onclick="deleteRecurring('income', '${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            </button>
                         </div>
                     </div>
                 `).join('');
@@ -1039,32 +1039,31 @@ function saveState() {
                 fixContainer.innerHTML = state.data.fixedExpenses
                     .sort((a, b) => a.day - b.day)
                     .map(item => `
-                    <div class="p-4 flex items-center justify-between gap-3 ${item.active ? '' : 'opacity-50 bg-slate-50'}">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleRecurring('expense', '${item.id}')" 
-                                class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer">
-                            <div class="min-w-0">
-                                <p class="text-sm font-semibold text-slate-900 truncate">${escapeHTML(item.label)}</p>
-                                <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <div class="p-4 flex items-start gap-3 ${item.active ? '' : 'opacity-50 bg-slate-50'}">
+                        <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleRecurring('expense', '${item.id}')" 
+                            class="mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0">
+                        <div class="flex-1 min-w-0 space-y-1.5">
+                            <p class="text-sm font-semibold text-slate-900 leading-snug break-words">${escapeHTML(item.label)}</p>
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
                                     <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md font-medium">${escapeHTML(item.sector || 'Charge fixe')}</span>
                                     <span>• Prélèvement le ${item.day}</span>
                                 </div>
+                                <div class="flex items-center gap-2 shrink-0 ml-auto">
+                                    <span class="text-sm font-bold text-slate-900 tabular-nums">-${formatEuro(item.amount)}</span>
+                                    <button type="button" onclick="openRecurringModal('expense', '${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100">
+                                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button type="button" onclick="deleteRecurring('expense', '${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-sm font-bold text-slate-900">-${formatEuro(item.amount)}</span>
-                            <button type="button" onclick="openRecurringModal('expense', '${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100">
-                                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <button type="button" onclick="deleteRecurring('expense', '${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            </button>
                         </div>
                     </div>
                 `).join('');
             }
         }
-
         // --- 6. GRAPHIQUES ANALYTIQUES (CHART.JS) ---
         function renderCharts() {
             const m = getMonthlyMetrics(state.selectedYear, state.selectedMonth);
