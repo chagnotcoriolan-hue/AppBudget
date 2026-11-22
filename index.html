@@ -684,6 +684,7 @@
                     { id: 'inc-1', label: 'Salaire Principal', amount: 2650.00, day: 28, active: true },
                     { id: 'inc-2', label: 'Prime / Titres Resto', amount: 180.00, day: 5, active: true }
                 ],
+				monthlyIncomes: [], // Tableau des revenus ponctuels / variables par date (YYYY-MM-DD)
                 fixedExpenses: [
                     { id: 'fix-1', label: 'Loyer Appartement', amount: 820.00, day: 5, sector: 'Logement & Énergie', active: true },
                     { id: 'fix-2', label: 'Électricité & Gaz', amount: 95.00, day: 10, sector: 'Logement & Énergie', active: true },
@@ -731,27 +732,32 @@
         };
 
         // --- 2. PERSISTANCE LOCALSTORAGE ---
-        function loadState() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (parsed && Array.isArray(parsed.expenses) && Array.isArray(parsed.fixedExpenses)) {
-                        state.data = parsed;
-                        if (!state.data.categories || state.data.categories.length === 0) {
-                            state.data.categories = [...DEFAULT_CATEGORIES];
-                        }
-                        return;
-                    }
+       function loadState() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.expenses) && Array.isArray(parsed.fixedExpenses)) {
+                state.data = parsed;
+                if (!state.data.categories || state.data.categories.length === 0) {
+                    state.data.categories = [...DEFAULT_CATEGORIES];
                 }
-            } catch (e) {
-                console.error("Erreur lecture localStorage:", e);
+                if (!Array.isArray(state.data.incomes)) {
+                    state.data.incomes = [];
+                }
+                if (!Array.isArray(state.data.monthlyIncomes)) {
+                    state.data.monthlyIncomes = [];
+                }
+                return;
             }
-            // Premier lancement : charger les données d'exemple
-            state.data = createDemoData();
-            saveState();
         }
-
+    } catch (e) {
+        console.error("Erreur lecture localStorage:", e);
+    }
+    // Premier lancement : charger les données d'exemple
+    state.data = createDemoData();
+    saveState();
+}
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
@@ -1627,6 +1633,7 @@ function renderRecurringLists() {
                 state.data = {
                     categories: [...DEFAULT_CATEGORIES],
                     incomes: [],
+					monthlyIncomes: [],
                     fixedExpenses: [],
                     expenses: []
                 };
@@ -1702,21 +1709,22 @@ function recupererEtatBudget() {
 }
 
 function appliquerEtatBudget(cloudData) {
-  if (!cloudData || typeof cloudData !== 'object') return;
-  state.data = {
-    categories: Array.isArray(cloudData.categories) && cloudData.categories.length > 0
-      ? cloudData.categories
-      : [...DEFAULT_CATEGORIES],
-    incomes: Array.isArray(cloudData.incomes) ? cloudData.incomes : [],
-    fixedExpenses: Array.isArray(cloudData.fixedExpenses) ? cloudData.fixedExpenses : [],
-    expenses: Array.isArray(cloudData.expenses) ? cloudData.expenses : []
-  };
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
-  } catch (e) {
-    console.error('Erreur cache local:', e);
-  }
-  renderAll();
+    if (!cloudData || typeof cloudData !== 'object') return;
+    state.data = {
+        categories: Array.isArray(cloudData.categories) && cloudData.categories.length > 0
+            ? cloudData.categories
+            : [...DEFAULT_CATEGORIES],
+        incomes: Array.isArray(cloudData.incomes) ? cloudData.incomes : [],
+        monthlyIncomes: Array.isArray(cloudData.monthlyIncomes) ? cloudData.monthlyIncomes : [],
+        fixedExpenses: Array.isArray(cloudData.fixedExpenses) ? cloudData.fixedExpenses : [],
+        expenses: Array.isArray(cloudData.expenses) ? cloudData.expenses : []
+    };
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+    } catch (e) {
+        console.error('Erreur cache local:', e);
+    }
+    renderAll();
 }
 
       // 3. Gestion de la session, chargement (select) et sauvegarde (upsert)
