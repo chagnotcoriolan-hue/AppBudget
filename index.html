@@ -170,81 +170,22 @@
 
     <!-- ==================== CONTENU PRINCIPAL ==================== -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+		
+<!-- Bandeau prioritaire : Disponible restant -->
+<section aria-label="Disponible restant" class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-emerald-500/30 shadow-xs">
+    <div class="flex items-center justify-between gap-4">
+        <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Disponible restant</span>
+            <div id="kpiRemaining" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-0.5">0,00 €</div>
+            <p id="kpiRemainingPercent" class="text-xs text-slate-500 mt-1">100% du reste à vivre</p>
+        </div>
+        <div id="kpiRemainingIcon" class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+            <i data-lucide="piggy-bank" class="w-5 h-5"></i>
+        </div>
+    </div>
+</section>
 
-        <!-- SECTION KPI GLOBALE (Toujours visible pour une lecture immédiate) -->
-        <section aria-label="Indicateurs clés du mois" class="space-y-4">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <!-- KPI 1: Revenus -->
-                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Revenus mensuels</span>
-                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                            <i data-lucide="trending-up" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div id="kpiIncome" class="text-xl sm:text-2xl font-bold text-slate-900">0,00 €</div>
-                    <p class="text-xs text-slate-400 mt-1">Base récurrente active</p>
-                </div>
-
-                <!-- KPI 2: Frais Fixes -->
-                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Frais fixes</span>
-                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                            <i data-lucide="lock" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div id="kpiFixed" class="text-xl sm:text-2xl font-bold text-slate-900">0,00 €</div>
-                    <p id="kpiResteAVivre" class="text-xs text-slate-500 mt-1 font-medium">Reste à vivre : 0,00 €</p>
-                </div>
-
-                <!-- KPI 3: Dépenses Courantes -->
-                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Dépenses courantes</span>
-                        <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div id="kpiVariable" class="text-xl sm:text-2xl font-bold text-slate-900">0,00 €</div>
-                    <p id="kpiVariableCount" class="text-xs text-slate-400 mt-1">0 opération ce mois</p>
-                </div>
-
-                <!-- KPI 4: Budget Disponible Restant -->
-                <div id="kpiRemainingCard" class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-emerald-500/30 shadow-xs transition-colors">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-600">Disponible restant</span>
-                        <div id="kpiRemainingIcon" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                            <i data-lucide="piggy-bank" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div id="kpiRemaining" class="text-xl sm:text-2xl font-extrabold text-emerald-600">0,00 €</div>
-                    <p id="kpiRemainingPercent" class="text-xs text-slate-500 mt-1">100% du reste à vivre</p>
-                </div>
-            </div>
-
-            <!-- Barre de progression de consommation du budget -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
-                <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-medium mb-2">
-                    <span class="text-slate-600">Consommation globale des revenus (<span id="progressRatioText">0%</span> utilisés)</span>
-                    <div class="flex items-center gap-4">
-                        <span class="flex items-center gap-1.5 text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span>Fixes</span>
-                        <span class="flex items-center gap-1.5 text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>Courantes</span>
-                        <span class="flex items-center gap-1.5 text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>Disponible</span>
-                    </div>
-                </div>
-                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
-                    <div id="barFixed" class="bg-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
-                    <div id="barVariable" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%"></div>
-                    <div id="barRemaining" class="bg-emerald-400 h-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== ONGLET 1 : SYNTHÈSE & DÉPENSES COURANTES ==================== -->
-        <div id="tab-dashboard" class="tab-content space-y-6">
-            
-            <!-- Formulaire d'Ajout Ultra-Rapide -->
+		            <!-- Formulaire d'Ajout Ultra-Rapide -->
             <section class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -305,6 +246,70 @@
                     </div>
                 </form>
             </section>
+
+		
+        <!-- SECTION KPI GLOBALE (Toujours visible pour une lecture immédiate) -->
+        <section aria-label="Indicateurs clés du mois" class="space-y-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <!-- KPI 1: Revenus -->
+                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Revenus mensuels</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div id="kpiIncome" class="text-xl sm:text-2xl font-bold text-slate-900">0,00 €</div>
+                    <p class="text-xs text-slate-400 mt-1">Base récurrente active</p>
+                </div>
+
+                <!-- KPI 2: Frais Fixes -->
+                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Frais fixes</span>
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div id="kpiFixed" class="text-xl sm:text-2xl font-bold text-slate-900">0,00 €</div>
+                    <p id="kpiResteAVivre" class="text-xs text-slate-500 mt-1 font-medium">Reste à vivre : 0,00 €</p>
+                </div>
+
+                <!-- KPI 3: Dépenses Courantes -->
+                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Dépenses courantes</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div id="kpiVariable" class="text-xl sm:text-2xl font-bold text-slate-900">0,00 €</div>
+                    <p id="kpiVariableCount" class="text-xs text-slate-400 mt-1">0 opération ce mois</p>
+                </div>
+
+            </div>
+
+            <!-- Barre de progression de consommation du budget -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
+                <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-medium mb-2">
+                    <span class="text-slate-600">Consommation globale des revenus (<span id="progressRatioText">0%</span> utilisés)</span>
+                    <div class="flex items-center gap-4">
+                        <span class="flex items-center gap-1.5 text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span>Fixes</span>
+                        <span class="flex items-center gap-1.5 text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>Courantes</span>
+                        <span class="flex items-center gap-1.5 text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>Disponible</span>
+                    </div>
+                </div>
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+                    <div id="barFixed" class="bg-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    <div id="barVariable" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    <div id="barRemaining" class="bg-emerald-400 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== ONGLET 1 : SYNTHÈSE & DÉPENSES COURANTES ==================== -->
+        <div id="tab-dashboard" class="tab-content space-y-6">
+            
 
             <!-- Historique des Dépenses Courantes du Mois -->
             <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
