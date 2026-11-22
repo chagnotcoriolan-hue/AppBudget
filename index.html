@@ -360,9 +360,15 @@
                             </h2>
                             <p class="text-xs text-slate-500 mt-0.5">Salaires, allocations, revenus réguliers</p>
                         </div>
-                        <button type="button" onclick="openRecurringModal('income')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1 shadow-xs">
-                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ajouter
-                        </button>
+                
+<div class="flex items-center gap-1.5">
+    <button type="button" onclick="openMonthlyIncomeModal()" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold rounded-xl transition flex items-center gap-1">
+        <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> Ce mois
+    </button>
+    <button type="button" onclick="openRecurringModal('income')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1 shadow-xs">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Fixe
+    </button>
+</div>
                     </div>
                     <div id="incomesList" class="divide-y divide-slate-100 flex-1">
                         <!-- Injecté par JS -->
@@ -552,7 +558,38 @@
             </form>
         </div>
     </div>
-
+<!-- ==================== MODALE : REVENU DU MOIS ==================== -->
+    <div id="monthlyIncomeModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 id="monthlyIncomeModalTitle" class="text-lg font-bold text-slate-900">Ajouter un revenu ce mois</h3>
+                <button type="button" onclick="closeModal('monthlyIncomeModal')" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="monthlyIncomeForm" class="space-y-4">
+                <input type="hidden" id="mIncId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Libellé *</label>
+                    <input type="text" id="mIncLabel" required placeholder="Ex: Salaire, Acompte, Prime..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Montant (€) *</label>
+                        <input type="number" step="0.01" min="0.01" id="mIncAmount" required placeholder="0.00" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Date *</label>
+                        <input type="date" id="mIncDate" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('monthlyIncomeModal')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Annuler</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- ==================== MODALE : GESTION DES CATÉGORIES ==================== -->
     <div id="categoryModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
@@ -800,37 +837,48 @@ function saveState() {
             }, 2800);
         }
 
-        // --- 4. CALCULS FINANCIERS ---
-        function getMonthlyMetrics(year, month) {
-            const monthKey = getMonthKey(year, month);
+// --- 4. CALCULS FINANCIERS ---
+function getMonthlyMetrics(year, month) {
+    const monthKey = getMonthKey(year, month);
 
-            const totalIncome = state.data.incomes
-                .filter(i => i.active)
-                .reduce((sum, i) => sum + Number(i.amount), 0);
+    // 1. Revenus fixes / récurrents actifs
+    const recurringIncome = (state.data.incomes || [])
+        .filter(i => i.active)
+        .reduce((sum, i) => sum + Number(i.amount), 0);
 
-            const totalFixed = state.data.fixedExpenses
-                .filter(f => f.active)
-                .reduce((sum, f) => sum + Number(f.amount), 0);
+    // 2. Revenus variables / ponctuels du mois sélectionné (ex: salaire ajusté ce mois)
+    const monthIncomes = (state.data.monthlyIncomes || [])
+        .filter(inc => inc.date && inc.date.startsWith(monthKey));
 
-            const monthExpenses = state.data.expenses
-                .filter(e => e.date && e.date.startsWith(monthKey));
+    const variableIncome = monthIncomes
+        .reduce((sum, inc) => sum + Number(inc.amount), 0);
 
-            const totalVariable = monthExpenses
-                .reduce((sum, e) => sum + Number(e.amount), 0);
+    // 3. Total des revenus du mois
+    const totalIncome = recurringIncome + variableIncome;
 
-            const resteAVivre = totalIncome - totalFixed;
-            const remainingBudget = resteAVivre - totalVariable;
+    const totalFixed = state.data.fixedExpenses
+        .filter(f => f.active)
+        .reduce((sum, f) => sum + Number(f.amount), 0);
 
-            return {
-                totalIncome,
-                totalFixed,
-                totalVariable,
-                resteAVivre,
-                remainingBudget,
-                monthExpenses
-            };
-        }
+    const monthExpenses = state.data.expenses
+        .filter(e => e.date && e.date.startsWith(monthKey));
 
+    const totalVariable = monthExpenses
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+    const resteAVivre = totalIncome - totalFixed;
+    const remainingBudget = resteAVivre - totalVariable;
+
+    return {
+        totalIncome,
+        totalFixed,
+        totalVariable,
+        resteAVivre,
+        remainingBudget,
+        monthExpenses,
+        monthIncomes
+    };
+}
         // --- 5. RENDU DE L'INTERFACE ---
         function renderAll() {
             updateMonthHeader();
@@ -1003,37 +1051,66 @@ function saveState() {
         }
 
 function renderRecurringLists() {
-            // Revenus
+// Revenus
             const incContainer = document.getElementById('incomesList');
-            const totalInc = state.data.incomes.filter(i => i.active).reduce((s, i) => s + Number(i.amount), 0);
+            const monthKey = getMonthKey(state.selectedYear, state.selectedMonth);
+            const monthIncomes = (state.data.monthlyIncomes || [])
+                .filter(inc => inc.date && inc.date.startsWith(monthKey))
+                .sort((a, b) => b.date.localeCompare(a.date));
+
+            const { totalIncome: totalInc } = getMonthlyMetrics(state.selectedYear, state.selectedMonth);
             document.getElementById('totalIncomesFooter').textContent = formatEuro(totalInc);
 
-            if (state.data.incomes.length === 0) {
-                incContainer.innerHTML = `<div class="p-8 text-center text-xs text-slate-400">Aucun revenu enregistré.</div>`;
-            } else {
-                incContainer.innerHTML = state.data.incomes.map(item => `
-                    <div class="p-4 flex items-start gap-3 ${item.active ? '' : 'opacity-50 bg-slate-50'}">
-                        <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleRecurring('income', '${item.id}')" 
-                            class="mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0">
-                        <div class="flex-1 min-w-0 space-y-1.5">
-                            <p class="text-sm font-semibold text-slate-900 leading-snug break-words">${escapeHTML(item.label)}</p>
-                            <div class="flex flex-wrap items-center justify-between gap-2">
-                                <span class="text-xs text-slate-500">Versé le ${item.day} du mois</span>
-                                <div class="flex items-center gap-2 shrink-0 ml-auto">
-                                    <span class="text-sm font-bold text-emerald-600 tabular-nums">+${formatEuro(item.amount)}</span>
-                                    <button type="button" onclick="openRecurringModal('income', '${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100">
-                                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                    <button type="button" onclick="deleteRecurring('income', '${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50">
-                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                </div>
+            const monthIncHtml = monthIncomes.map(inc => {
+                const dLabel = new Date(inc.date + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                return `
+                    <div class="p-4 bg-emerald-50/40 flex items-start justify-between gap-3">
+                        <div class="min-w-0 space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md bg-emerald-100 text-emerald-800">Ce mois • ${dLabel}</span>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-900 break-words">${escapeHTML(inc.label)}</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="text-sm font-bold text-emerald-600 tabular-nums">+${formatEuro(inc.amount)}</span>
+                            <button type="button" onclick="openMonthlyIncomeModal('${inc.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100">
+                                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button type="button" onclick="deleteMonthlyIncome('${inc.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const recurringIncHtml = state.data.incomes.map(item => `
+                <div class="p-4 flex items-start gap-3 ${item.active ? '' : 'opacity-50 bg-slate-50'}">
+                    <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleRecurring('income', '${item.id}')" 
+                        class="mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0">
+                    <div class="flex-1 min-w-0 space-y-1.5">
+                        <p class="text-sm font-semibold text-slate-900 leading-snug break-words">${escapeHTML(item.label)}</p>
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="text-xs text-slate-500">Fixe • Versé le ${item.day} du mois</span>
+                            <div class="flex items-center gap-2 shrink-0 ml-auto">
+                                <span class="text-sm font-bold text-emerald-600 tabular-nums">+${formatEuro(item.amount)}</span>
+                                <button type="button" onclick="openRecurringModal('income', '${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100">
+                                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button type="button" onclick="deleteRecurring('income', '${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
-                `).join('');
-            }
+                </div>
+            `).join('');
 
+            if (!monthIncHtml && !recurringIncHtml) {
+                incContainer.innerHTML = `<div class="p-8 text-center text-xs text-slate-400">Aucun revenu enregistré.</div>`;
+            } else {
+                incContainer.innerHTML = monthIncHtml + recurringIncHtml;
+            }
             // Frais fixes
             const fixContainer = document.getElementById('fixedExpensesList');
             const totalFix = state.data.fixedExpenses.filter(f => f.active).reduce((s, f) => s + Number(f.amount), 0);
@@ -1414,6 +1491,56 @@ function renderRecurringLists() {
             showToast('Élément supprimé');
         };
 
+		// Revenus ponctuels / variables du mois
+        window.openMonthlyIncomeModal = function(id = null) {
+            document.getElementById('mIncId').value = id || '';
+            const title = document.getElementById('monthlyIncomeModalTitle');
+            if (id) {
+                const item = (state.data.monthlyIncomes || []).find(i => i.id === id);
+                if (!item) return;
+                title.textContent = 'Modifier le revenu du mois';
+                document.getElementById('mIncLabel').value = item.label;
+                document.getElementById('mIncAmount').value = item.amount;
+                document.getElementById('mIncDate').value = item.date;
+            } else {
+                title.textContent = 'Ajouter un revenu ce mois';
+                document.getElementById('monthlyIncomeForm').reset();
+                const mm = String(state.selectedMonth + 1).padStart(2, '0');
+                document.getElementById('mIncDate').value = `${state.selectedYear}-${mm}-28`;
+            }
+            openModal('monthlyIncomeModal');
+        };
+
+        document.getElementById('monthlyIncomeForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!Array.isArray(state.data.monthlyIncomes)) state.data.monthlyIncomes = [];
+            const id = document.getElementById('mIncId').value;
+            const label = document.getElementById('mIncLabel').value.trim();
+            const amount = parseFloat(document.getElementById('mIncAmount').value);
+            const date = document.getElementById('mIncDate').value;
+            if (!label || !amount || amount <= 0 || !date) return;
+
+            if (id) {
+                const idx = state.data.monthlyIncomes.findIndex(i => i.id === id);
+                if (idx !== -1) state.data.monthlyIncomes[idx] = { ...state.data.monthlyIncomes[idx], label, amount, date };
+            } else {
+                state.data.monthlyIncomes.push({ id: 'minc-' + Date.now(), label, amount, date });
+            }
+
+            saveState();
+            closeModal('monthlyIncomeModal');
+            renderAll();
+            showToast('Revenu du mois enregistré');
+        });
+
+        window.deleteMonthlyIncome = function(id) {
+            state.data.monthlyIncomes = (state.data.monthlyIncomes || []).filter(i => i.id !== id);
+            saveState();
+            renderAll();
+            showToast('Revenu du mois supprimé');
+        };
+
+		
         // Gestion des Catégories
         document.getElementById('openCatModalBtn').addEventListener('click', () => {
             renderManageCategories();
