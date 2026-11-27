@@ -145,7 +145,13 @@
                         <span>Analyses</span>
                     </button>
                 </nav>
+				<button id="authStatusBtn" type="button" title="État de la synchronisation cloud"
+				    class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-1.5 transition">
+				    <span id="authStatusDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+				    <span id="authStatusText" class="hidden sm:inline">Hors ligne</span>
+				</button>
 
+				
                 <button id="openSettingsBtn" type="button" title="Données, Export & Paramètres" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition border border-slate-200">
                     <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
                 </button>
@@ -1850,6 +1856,33 @@ function appliquerEtatBudget(cloudData) {
         errEl.classList.toggle('hidden', !message);
       }
 
+function updateAuthStatusUI(user) {
+    const dot = document.getElementById('authStatusDot');
+    const text = document.getElementById('authStatusText');
+    const btn = document.getElementById('authStatusBtn');
+    if (!dot || !text || !btn) return;
+
+    if (user) {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        text.textContent = user.email;
+        btn.title = `Connecté (${user.email}) — Cliquer pour se déconnecter`;
+    } else {
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        text.textContent = 'Non connecté';
+        btn.title = 'Non connecté — Cliquer pour se connecter';
+    }
+}
+
+document.getElementById('authStatusBtn')?.addEventListener('click', async () => {
+    if (currentUser) {
+        await sb.auth.signOut();
+        showToast('Déconnecté du cloud');
+    } else {
+        setAuthModalVisible(true);
+    }
+});
+
+		
       async function loadBudgetFromSupabase(user) {
         const { data, error } = await sb
           .from('budget_data')
@@ -1922,15 +1955,16 @@ function appliquerEtatBudget(cloudData) {
         }
       });
 
-      sb.auth.onAuthStateChange(async (_event, session) => {
-        currentUser = session?.user ?? null;
-        if (currentUser) {
-          setAuthModalVisible(false);
-          await loadBudgetFromSupabase(currentUser);
-        } else {
-          setAuthModalVisible(true);
-        }
-      });
+sb.auth.onAuthStateChange(async (_event, session) => {
+    currentUser = session?.user ?? null;
+    updateAuthStatusUI(currentUser);
+    if (currentUser) {
+        setAuthModalVisible(false);
+        await loadBudgetFromSupabase(currentUser);
+    } else {
+        setAuthModalVisible(true);
+    }
+});
     </script>
   </body>
 </html>
